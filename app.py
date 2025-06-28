@@ -1,11 +1,11 @@
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters, CallbackContext
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, filters, CallbackContext
 
 USER_DATA = {}  # Ulanyjylaryň maglumatlaryny saklamak üçin
 
 # Admin paroly
 ADMIN_PASSWORD = "DİLPROMEYH4"
-ADMIN_CHAT_ID = 8143084360  # Adminiň ID-nä ýerine ýetirip bilersiňiz
+ADMIN_CHAT_ID = 8143084360  # Bu ýerde adminiň ID-sini giriziň
 
 # Botuň başlangyç komandasy
 def start(update: Update, context: CallbackContext) -> None:
@@ -16,7 +16,7 @@ def start(update: Update, context: CallbackContext) -> None:
         'used_free': 0,
         'language': 'TÜRKMEN'  # Başlangyç dili
     })
-    
+
     keyboard = [
         [InlineKeyboardButton("Sorag Başlamak", callback_data='start_question'),
          InlineKeyboardButton("Profil", callback_data='profile')],
@@ -25,34 +25,30 @@ def start(update: Update, context: CallbackContext) -> None:
     ]
     
     reply_markup = InlineKeyboardMarkup(keyboard)
-    
     update.message.reply_text("Hoş geldiňiz!", reply_markup=reply_markup)
 
 # Sorag başlamak
 def start_question(update: Update, context: CallbackContext) -> None:
     user_id = update.callback_query.from_user.id
     update.callback_query.answer()
-    
+
     keyboard = [
         [InlineKeyboardButton("Mugt Version", callback_data='free_version'),
          InlineKeyboardButton("Premium Version", callback_data='premium_version')]
     ]
     
     reply_markup = InlineKeyboardMarkup(keyboard)
-    
     update.callback_query.message.reply_text("Sorag başlamak üçin saýlaň:", reply_markup=reply_markup)
 
 # Mugt we Premium görnüşleri 
 def free_version(update: Update, context: CallbackContext) -> None:
     user_id = update.callback_query.from_user.id
     USER_DATA[user_id]['used_free'] += 1
-    # Mugt dolandyryş şemasyny ýerine ýetiriň
+    # Mugt wagtynda dolandyryş
     update.callback_query.answer()
     update.callback_query.message.reply_text("Siz mugt hyzmatdan peýdalanyp başladyňyz.")
 
 def premium_version(update: Update, context: CallbackContext) -> None:
-    user_id = update.callback_query.from_user.id
-    # Premium dolandyryş şemasyny ýerine ýetiriň
     update.callback_query.answer()
     update.callback_query.message.reply_text("Siz Premium hyzmatyna geçmek isleýänsiňiz.")
 
@@ -87,10 +83,9 @@ def change_language(update: Update, context: CallbackContext) -> None:
     ]
     
     reply_markup = InlineKeyboardMarkup(keyboard)
-    
     update.callback_query.message.reply_text("Dil saýlaň:", reply_markup=reply_markup)
 
-# Dili üýtgetmek gutusy
+# Dili üýtgetmek
 def set_language(update: Update, context: CallbackContext) -> None:
     user_id = update.callback_query.from_user.id
     language_map = {
@@ -113,18 +108,17 @@ def admin_panel(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("Giriş başarsyz, dogry açar söz giriziň.")
 
 def main() -> None:
-    updater = Updater("7220349197:AAF6LxnRHGuDds3isgbFMKSER8rMquwx_hw")
+    updater = Updater("7220349197:AAF6LxnRHGuDds3isgbFMKSER8rMquwx_hw")  # Bu ýerde öz bot tokeniňizi ýazyň
 
     # Komandalar we düwmeleri goşmak
-    updater.dispatcher.add_handler(CommandHandle("start", start))
-    updater.dispatcher.add_handler(CallbackQueryHandler(start_question, pattern='start_question'))
-    updater.dispatcher.add_handler(CallbackQueryHandler(free_version, pattern='free_version'))
+    updater.dispatcher.add_handler(CommandHandler("start", start))
+    updater.dispatcher.add_handler(CallbackQueryHandler(start_question, pattern='start_question'))updater.dispatcher.add_handler(CallbackQueryHandler(free_version, pattern='free_version'))
     updater.dispatcher.add_handler(CallbackQueryHandler(premium_version, pattern='premium_version'))
     updater.dispatcher.add_handler(CallbackQueryHandler(profile, pattern='profile'))
     updater.dispatcher.add_handler(CallbackQueryHandler(buy_premium, pattern='buy_premium'))
     updater.dispatcher.add_handler(CallbackQueryHandler(change_language, pattern='change_language'))
     updater.dispatcher.add_handler(CallbackQueryHandler(set_language, pattern='set_language_RUS|set_language_TR|set_language_EN'))
-    updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, admin_panel))
+    updater.dispatcher.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, admin_panel))
 
     updater.start_polling()
     updater.idle()
