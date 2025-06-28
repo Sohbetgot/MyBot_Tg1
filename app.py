@@ -10,7 +10,7 @@ from telebot import types
 load_dotenv()
 
 BOT_TOKEN = '7220349197:AAF6LxnRHGuDds3isgbFMKSER8rMquwx_hw'
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("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")
 ADMIN_KEY = 'DILPROMEYH4'
 
 bot = telebot.TeleBot(BOT_TOKEN)
